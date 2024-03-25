@@ -1,0 +1,11 @@
+/.vs
+/Library
+/Samples
+/Logs
+/obj
+/Temp
+/windows_builds
+/*.sln
+/*.csproj
+/MemoryCaptures
+/git-extras
