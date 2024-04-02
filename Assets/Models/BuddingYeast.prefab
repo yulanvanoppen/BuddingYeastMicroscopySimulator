@@ -47,8 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4359bbc759baf1b4d97cd203fe6af4a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  root: {fileID: 2136440979800243128}
-  nodes:
+  Root: {fileID: 2136440979800243128}
+  Nodes:
   - {fileID: 5661963362403675552}
   - {fileID: 6338190937624236171}
   - {fileID: 8926658664716118472}
@@ -105,7 +105,7 @@ MonoBehaviour:
   ColliderSize: 0.004
   RigidbodyMass: 1
   ConnectionDistance: 0.1
-  Jitter: 4
+  Jitter: 50
 --- !u!114 &5689491078886146198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,6 +135,7 @@ MonoBehaviour:
   MeanTime: 30
   Variability: 0.2
   BudSize: 0.5
+  Prefab: {fileID: 570164783727510354, guid: 17a4fe1cc6d5abe409378d305d121a6b, type: 3}
 --- !u!1001 &5844647959276067874
 PrefabInstance:
   m_ObjectHideFlags: 0

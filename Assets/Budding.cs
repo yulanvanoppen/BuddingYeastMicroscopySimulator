@@ -9,17 +9,21 @@ public class Budding : MonoBehaviour
 
     public float BudSize = 0.5f;
 
+
+    public GameObject Prefab = null;
+
     private float counter = 0f;
     private float cooldown;
 
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         cooldown = MeanTime * (1 + Variability * Random.Range(-1, 1));
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         counter += Time.deltaTime;
 
@@ -30,10 +34,15 @@ public class Budding : MonoBehaviour
         }
     }
 
-    void MakeBud()
+    private void MakeBud()
     {
-        Vector3 offset = Random.insideUnitCircle.normalized;
-        GameObject bud = Instantiate(gameObject, transform.position + offset, Quaternion.identity);
-        bud.transform.localScale = BudSize * Vector3.one;
+        Vector2 offset = transform.localScale.x * .2f * Random.insideUnitCircle.normalized;
+        Vector3 offset3 = new Vector3(offset.x, 0f, offset.y);
+
+        Debug.Log(offset3);
+        Debug.Log(transform.position);
+
+        GameObject bud = Instantiate(Prefab, transform.position + offset3, Quaternion.identity);
+        bud.GetComponent<Growth>().Scale(BudSize);
     }
 }

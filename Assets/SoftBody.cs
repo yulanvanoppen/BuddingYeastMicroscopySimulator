@@ -20,9 +20,8 @@ public static class Softbody
     public static float Spring;
     public static float Damper;
     public static RigidbodyConstraints Constraints;
-    public static float Scale;
 
-    public static void Init(ColliderShape shape, float collidersize, float rigidbodymass, float spring, float damper, RigidbodyConstraints constraints, float scale)
+    public static void Init(ColliderShape shape, float collidersize, float rigidbodymass, float spring, float damper, RigidbodyConstraints constraints)
     {
         Shape = shape;
         ColliderSize = collidersize;
@@ -30,7 +29,6 @@ public static class Softbody
         Spring = spring;
         Damper = damper;
         Constraints = constraints;
-        Scale = scale;
     }
     public static Rigidbody AddCollider(ref GameObject go)
     {
@@ -38,7 +36,7 @@ public static class Softbody
     }
     public static SpringJoint AddSpring(ref GameObject go1, ref GameObject go2)
     {
-        SpringJoint sp = AddSpring(ref go1, ref go2, Spring, Damper, Scale);
+        SpringJoint sp = AddSpring(ref go1, ref go2, Spring, Damper);
 
         return sp;
     }
@@ -64,14 +62,12 @@ public static class Softbody
         rb.constraints = Constraints;
         return rb;
     }
-    public static SpringJoint AddSpring(ref GameObject go1, ref GameObject go2, float spring, float damper, float scale)
+    public static SpringJoint AddSpring(ref GameObject go1, ref GameObject go2, float spring, float damper)
     {
         SpringJoint sp = go1.AddComponent<SpringJoint>();
         sp.connectedBody = go2.GetComponent<Rigidbody>();
         sp.spring = spring;
         sp.damper = damper;
-        sp.massScale = scale;
-        sp.connectedMassScale = scale;
         return sp;
     }
 }
