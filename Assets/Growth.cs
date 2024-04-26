@@ -8,14 +8,18 @@ public class Growth : MonoBehaviour
     public float Variability = .5f;
 
     private float time = .25f;
+    private BoneSphere boneSphere;
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        boneSphere = gameObject.GetComponent<BoneSphere>();
+    }
+
     private void Start()
     {
         GrowthRate *= 1f + Variability * Random.Range(-1f, 1f);
     }
 
-    // Update is called once per frame
     private void Update()
     {
         time += Time.deltaTime;
@@ -30,6 +34,6 @@ public class Growth : MonoBehaviour
     public void Scale(float scale)
     {
         gameObject.transform.localScale = scale * Vector3.one;
-        gameObject.GetComponent<BoneSphere>().Scale();
+        if (boneSphere != null && boneSphere.enabled) boneSphere.Scale();
     }
 }
