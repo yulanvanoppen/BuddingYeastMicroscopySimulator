@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class Growth : MonoBehaviour
 {
-    public float GrowthRate = .01f;
+    public float Multiplier = 1f;
     public float Variability = .5f;
 
-    private float time = .25f;
+    public float time = .25f;
+    public float rate;
     private BoneSphere boneSphere;
 
     private void Awake()
@@ -17,13 +18,15 @@ public class Growth : MonoBehaviour
 
     private void Start()
     {
-        GrowthRate *= 1f + Variability * Random.Range(-1f, 1f);
+        time = 40f * transform.localScale.x;
+        Multiplier *= 1f + Variability * Random.Range(-1f, 1f);
     }
 
     private void Update()
     {
         time += Time.deltaTime;
-        Grow(.5f * GrowthRate * Time.deltaTime / Mathf.Sqrt(time));
+        rate = .0001f + .2f * Mathf.Exp(time/10f) * Mathf.Pow(Mathf.Exp(time/10f) + 1, -2f);
+        Grow(Multiplier * rate * Time.deltaTime);
     }
 
     private void Grow(float dscale)
@@ -35,5 +38,11 @@ public class Growth : MonoBehaviour
     {
         gameObject.transform.localScale = scale * Vector3.one;
         if (boneSphere != null && boneSphere.enabled) boneSphere.Scale();
+    }
+
+    public void ResetBud(float scale)
+    {
+        Scale(scale);
+        time = 0f;
     }
 }

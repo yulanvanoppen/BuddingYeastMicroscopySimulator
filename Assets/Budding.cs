@@ -7,7 +7,7 @@ public class Budding : MonoBehaviour
     public float MeanTime = 100f;
     public float Variability = .2f;
 
-    public float BudSize = 0.5f;
+    public float BudSize = .01f;
 
 
     public GameObject Prefab = null;
@@ -43,6 +43,6 @@ public class Budding : MonoBehaviour
         Debug.Log(transform.position);
 
         GameObject bud = Instantiate(Prefab, transform.position + offset3, Quaternion.identity);
-        bud.GetComponent<Growth>().Scale(BudSize);
+        bud.GetComponent<Growth>().ResetBud(BudSize);
     }
 }

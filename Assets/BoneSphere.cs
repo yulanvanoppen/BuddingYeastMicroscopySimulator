@@ -73,6 +73,10 @@ public class BoneSphere : MonoBehaviour
     private void Update()
     {
         Scale();
+    }
+
+    public void RootJitter()
+    {
         root.AddForce(scale * Jitter * UnityEngine.Random.insideUnitSphere * Time.deltaTime, ForceMode.Impulse);
     }
 
