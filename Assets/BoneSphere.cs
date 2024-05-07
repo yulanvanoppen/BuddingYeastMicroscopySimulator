@@ -1,10 +1,6 @@
 // Modified from https://github.com/omarvision/Softbody-Physics-Spring-Joint-
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class BoneSphere : MonoBehaviour

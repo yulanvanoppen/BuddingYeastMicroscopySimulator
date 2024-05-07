@@ -1,28 +1,30 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Budding : MonoBehaviour
 {
+    [Tooltip("Mean time to until budding")] 
     public float MeanTime = 100f;
+
+    [Tooltip("Relative mean time variabilty")]
     public float Variability = .2f;
 
+    [Tooltip("Initial bud size")]
     public float BudSize = .01f;
 
+    [Tooltip("List of possible budding site transforms")]
+    public Transform[] Sites = null;
 
+    [Tooltip("Bud prefab object (equal to own prefab)")]
     public GameObject Prefab = null;
 
     private float counter = 0f;
     private float cooldown;
 
-
-    // Start is called before the first frame update
     private void Start()
     {
         cooldown = MeanTime * (1 + Variability * Random.Range(-1, 1));
     }
 
-    // Update is called once per frame
     private void Update()
     {
         counter += Time.deltaTime;
@@ -36,13 +38,9 @@ public class Budding : MonoBehaviour
 
     private void MakeBud()
     {
-        Vector2 offset = transform.localScale.x * .2f * Random.insideUnitCircle.normalized;
-        Vector3 offset3 = new Vector3(offset.x, 0f, offset.y);
+        Transform randomSite = Sites[Random.Range(0, Sites.Length)];
 
-        Debug.Log(offset3);
-        Debug.Log(transform.position);
-
-        GameObject bud = Instantiate(Prefab, transform.position + offset3, Quaternion.identity);
+        GameObject bud = Instantiate(Prefab, randomSite.position, Quaternion.identity);
         bud.GetComponent<Growth>().ResetBud(BudSize);
     }
 }
