@@ -1,6 +1,7 @@
 // Modified from https://github.com/omarvision/Softbody-Physics-Spring-Joint-
 
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BoneSphere : MonoBehaviour
@@ -8,6 +9,7 @@ public class BoneSphere : MonoBehaviour
     [Header("Bones")]
     public GameObject Root = null;
     public GameObject[] Nodes = null;
+    public GameObject[] Pivots = null;
 
     [Header("Spring Joint Settings")]
     [Tooltip("Strength of spring")]
@@ -42,28 +44,34 @@ public class BoneSphere : MonoBehaviour
                              RootColliderSize, RootRigidbodyMass);
 
         List<Rigidbody> rbList = new List<Rigidbody>();
+        List<GameObject> goList = new List<GameObject>();
         List<SpringJoint> sjList = new List<SpringJoint>();
+        GameObject pivot;
         for (int i = 0; i < Nodes.Length; ++i)
         {
             rbList.Add(Softbody.AddCollider(ref Nodes[i]));
-            sjList.Add(Softbody.AddSpring(ref Nodes[i], ref Root));
+            pivot = new GameObject("pivot"+i.ToString());
+            pivot.transform.position = Nodes[i].transform.position;
+            pivot.transform.parent = this.gameObject.transform;
+            sjList.Add(Softbody.AddSpring(ref Nodes[i], ref pivot));
+            goList.Add(pivot);
         }
 
-        scale = transform.localScale.x;
-        for (int i = 0; i < Nodes.Length; ++i)
-        {
-            for (int j = i + 1; j < Nodes.Length; ++j)
-            {
-                if (Vector3.Distance(Nodes[i].transform.position, Nodes[j].transform.position) < ConnectionDistance * scale)
-                    sjList.Add(Softbody.AddSpring(ref Nodes[i], ref Nodes[j]));
-            }
-        }
+        //scale = transform.localScale.x;
+        //for (int i = 0; i < Nodes.Length; ++i)
+        //{
+        //    for (int j = i + 1; j < Nodes.Length; ++j)
+        //    {
+        //        if (Vector3.Distance(Nodes[i].transform.position, Nodes[j].transform.position) < ConnectionDistance * scale)
+        //            sjList.Add(Softbody.AddSpring(ref Nodes[i], ref Nodes[j]));
+        //    }
+        //}
 
-        rigidBodies = rbList.ToArray();
-        springJoints = sjList.ToArray();
+        //rigidBodies = rbList.ToArray();
+        //springJoints = sjList.ToArray();
 
-        Debug.Log(rigidBodies);
-        Debug.Log(springJoints);
+        //Debug.Log(rigidBodies);
+        //Debug.Log(springJoints);
     }
 
     private void Update()
@@ -81,14 +89,14 @@ public class BoneSphere : MonoBehaviour
         scale = transform.localScale.x;
 
         root.mass = RootRigidbodyMass * Mathf.Pow(scale, 3f);
-        foreach (Rigidbody rb in rigidBodies)
-            rb.mass = RigidbodyMass * Mathf.Pow(scale, 3f);
+        //foreach (Rigidbody rb in rigidBodies)
+        //    rb.mass = RigidbodyMass * Mathf.Pow(scale, 3f);
 
-        foreach (SpringJoint sj in springJoints)
-        {
-            sj.spring = Spring * Mathf.Pow(scale, 3f);
-            sj.massScale = scale;
-            sj.connectedMassScale = scale;
-        }
+        //foreach (SpringJoint sj in springJoints)
+        //{
+        //    sj.spring = Spring * Mathf.Pow(scale, 3f);
+        //    sj.massScale = scale;
+        //    sj.connectedMassScale = scale;
+        //}
     }
 }
