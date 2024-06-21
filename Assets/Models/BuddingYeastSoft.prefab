@@ -93,6 +93,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1623964171782762960}
   - component: {fileID: 8661368147339215026}
+  - component: {fileID: 17280207088994978}
+  - component: {fileID: 147135410954435781}
   m_Layer: 0
   m_Name: BuddingYeastSoft
   m_TagString: Untagged
@@ -179,15 +181,45 @@ MonoBehaviour:
   - {fileID: 2699586359089046784}
   - {fileID: 7370101235764224902}
   - {fileID: 904883235815374037}
+  Pivots: []
   Spring: 1000
-  Damper: 0.1
+  Damper: 1000
   Shape: 1
-  RootColliderSize: 0.01
+  RootColliderSize: 0.015
   RootRigidbodyMass: 10
-  ColliderSize: 0.004
+  RootRigidbodyDrag: 10
+  ColliderSize: 0.0075
   RigidbodyMass: 1
   ConnectionDistance: 0.1
   Jitter: 50
+--- !u!114 &17280207088994978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570164783727510354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a168a0bd72eeec14ca422f2516b4d449, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Root: {fileID: 2136440979800243128}
+  Gravity: 200
+--- !u!114 &147135410954435781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570164783727510354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2b5e56bb29401f479922a3b99c5069a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Magnitude: 10
+  Root: {fileID: 2136440979800243128}
 --- !u!1 &616862947592430555
 GameObject:
   m_ObjectHideFlags: 0
@@ -4339,6 +4371,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: budding_yeast
       objectReference: {fileID: 0}
+    - target: {fileID: 8879528566716807029, guid: 9c48ea9fcf1c3c74498f862b180614bb,
+        type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4650,7 +4687,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   outlineMode: 0
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
-  outlineWidth: 0.1
+  outlineWidth: 10
   precomputeOutline: 1
   bakeKeys: []
   bakeValues: []

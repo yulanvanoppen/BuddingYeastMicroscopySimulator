@@ -3,6 +3,7 @@
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
+using static Softbody;
 
 public static class Softbody
 {
@@ -30,9 +31,9 @@ public static class Softbody
         Damper = damper;
         Constraints = constraints;
     }
-    public static Rigidbody AddCollider(ref GameObject go)
+    public static Rigidbody AddCollider(ref GameObject go, Collider[] colliders)
     {
-        return AddCollider(ref go, Shape, ColliderSize, RigidbodyMass);
+        return AddCollider(ref go, colliders, Shape, ColliderSize, RigidbodyMass, 1f);
     }
     public static SpringJoint AddSpring(ref GameObject go1, ref GameObject go2)
     {
@@ -41,25 +42,31 @@ public static class Softbody
         return sp;
     }
 
-    public static Rigidbody AddCollider(ref GameObject go, ColliderShape shape, float size, float mass)
+    public static Rigidbody AddCollider(ref GameObject go, Collider[] colliders, 
+                                        ColliderShape shape, float size, float mass, float drag)
     {
         switch (shape)
         {
             case ColliderShape.Box:
+                //go.AddComponent<IgnoreOwnCollision>();
                 BoxCollider bc = go.AddComponent<BoxCollider>();
+                for (int i = 0; i < colliders.Length; ++i) Physics.IgnoreCollision(bc, colliders[i]);
                 bc.size = new Vector3(size, size, size);
                 break;
             case ColliderShape.Sphere:
+                //go.AddComponent<IgnoreOwnCollision>();
                 SphereCollider sc = go.AddComponent<SphereCollider>();
+                for (int i = 0; i < colliders.Length; ++i) Physics.IgnoreCollision(sc, colliders[i]);
                 sc.radius = size;
                 break;
         }
 
         Rigidbody rb = go.AddComponent<Rigidbody>();
         rb.mass = mass;
-        rb.drag = 0f;
-        rb.angularDrag = 10f;
+        rb.drag = drag;
+        rb.angularDrag = 1f;
         rb.constraints = Constraints;
+        rb.useGravity = false;
         return rb;
     }
     public static SpringJoint AddSpring(ref GameObject go1, ref GameObject go2, float spring, float damper)
@@ -68,6 +75,10 @@ public static class Softbody
         sp.connectedBody = go2.GetComponent<Rigidbody>();
         sp.spring = spring;
         sp.damper = damper;
+
+        sp.tolerance = .0000001f;
+
+
         return sp;
     }
 }

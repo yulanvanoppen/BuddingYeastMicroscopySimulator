@@ -5,24 +5,23 @@ using UnityEngine.UIElements;
 
 public class Jitter : MonoBehaviour
 {
-    private float Magnitude = 1f;
+    public float Magnitude = 1f;
+    public GameObject Root = null;
+
     private Rigidbody rb;
-    private BoneSphere boneSphere;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        boneSphere = GetComponent<BoneSphere>();
+        if (Root == null)
+            rb = GetComponent<Rigidbody>();
+        else
+            rb = Root.GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        if (boneSphere != null && boneSphere.enabled)
-            boneSphere.RootJitter();
-        else
-            rb.AddForce(transform.localScale.x * Magnitude * Time.deltaTime
+        rb.AddForce(transform.localScale.x * Magnitude * Time.deltaTime
                          * UnityEngine.Random.insideUnitSphere, 
                         ForceMode.Impulse);
-
     }
 }
