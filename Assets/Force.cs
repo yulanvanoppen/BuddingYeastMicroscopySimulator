@@ -15,7 +15,7 @@ public class Force : MonoBehaviour
             rb = Root.GetComponent<Rigidbody>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         Vector2 horizontalDirection = new Vector2(rb.transform.position.x, rb.transform.position.z).normalized;
 

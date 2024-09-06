@@ -3,17 +3,31 @@ using UnityEditor.Animations;
 
 public class RecordTransformHierarchy : MonoBehaviour
 {
+    public GameObject[] cells;
     public AnimationClip clip;
+    public float intervalSeconds = 1f;
 
-    private GameObjectRecorder m_Recorder;
+    public float timeSinceSnapshot;
+    private GameObjectRecorder recorder;
 
     void Start()
     {
         // Create recorder and record the script GameObject.
-        m_Recorder = new GameObjectRecorder(gameObject);
+        recorder = new GameObjectRecorder(gameObject);
 
-        // Bind all the Transforms on the GameObject and all its children.
-        m_Recorder.BindComponentsOfType<Transform>(gameObject, true);
+        foreach (GameObject cell in cells)
+        {
+            // Bind Transform of the cell itself
+            recorder.BindComponentsOfType<Transform>(cell, false);
+
+            // Find rigged yeast model in hierarchy
+            GameObject modelObject = cell.transform.Find("budding_yeast").gameObject;
+
+            // Bind all the Transforms on the GameObject and all its children.
+            recorder.BindComponentsOfType<Transform>(modelObject, true);
+        }
+
+        timeSinceSnapshot = intervalSeconds;
     }
 
     void LateUpdate()
@@ -21,8 +35,15 @@ public class RecordTransformHierarchy : MonoBehaviour
         if (clip == null)
             return;
 
-        // Take a snapshot and record all the bindings values for this frame.
-        m_Recorder.TakeSnapshot(Time.deltaTime);
+        timeSinceSnapshot += Time.deltaTime;
+
+        if (timeSinceSnapshot > intervalSeconds)
+        {
+            // Take a snapshot and record all the bindings values for this frame.
+            recorder.TakeSnapshot(intervalSeconds);
+            
+            timeSinceSnapshot -= intervalSeconds;
+        }
     }
 
     void OnDisable()
@@ -30,10 +51,10 @@ public class RecordTransformHierarchy : MonoBehaviour
         if (clip == null)
             return;
 
-        if (m_Recorder.isRecording)
+        if (recorder.isRecording)
         {
             // Save the recorded session to the clip.
-            m_Recorder.SaveToClip(clip);
+            recorder.SaveToClip(clip);
         }
     }
 }

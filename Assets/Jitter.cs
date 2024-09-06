@@ -18,7 +18,7 @@ public class Jitter : MonoBehaviour
             rb = Root.GetComponent<Rigidbody>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         rb.AddForce(transform.localScale.x * Magnitude * Time.deltaTime
                          * UnityEngine.Random.insideUnitSphere, 

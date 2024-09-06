@@ -188,7 +188,7 @@ MonoBehaviour:
   RootColliderSize: 0.015
   RootRigidbodyMass: 10
   RootRigidbodyDrag: 10
-  ColliderSize: 0.0075
+  ColliderSize: 0.006
   RigidbodyMass: 1
   ConnectionDistance: 0.1
   Jitter: 50
