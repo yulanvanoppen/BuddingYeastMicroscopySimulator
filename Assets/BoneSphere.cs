@@ -13,27 +13,26 @@ public class BoneSphere : MonoBehaviour
 
     [Header("Spring Joint Settings")]
     [Tooltip("Strength of spring")]
-    public float Spring = 100f;
+    public float Spring = 1000f;
 
     [Tooltip("Higher the value the faster the spring oscillation stops")]
-    public float Damper = 0.2f;
+    public float Damper = 1000f;
 
     [Header("Other Settings")]
     public Softbody.ColliderShape Shape = Softbody.ColliderShape.Sphere;
-    public float RootColliderSize = 0.005f;
-    public float RootRigidbodyMass = 1f;
+    public float RootColliderSize = 0.015f;
+    public float RootRigidbodyMass = 10f;
     public float RootRigidbodyDrag = 10f;
-    public float ColliderSize = 0.002f;
+    public float ColliderSize = 0.006f;
     public float RigidbodyMass = 1f;
-    public float ConnectionDistance = 0.005f;
-    public float Jitter = 0.00001f;
+    public float ConnectionDistance = 0.1f;
 
     private Rigidbody root;
 
     private float scale;
 
-    private Rigidbody[] rigidBodies = null;
-    private SpringJoint[] springJoints = null;
+    //private Rigidbody[] rigidBodies = null;
+    //private SpringJoint[] springJoints = null;
     private List<Collider> colliders = new List<Collider>();
 
     private void Awake()
@@ -48,71 +47,78 @@ public class BoneSphere : MonoBehaviour
 
     private void Start()
     {
+        scale = transform.localScale.x;
+
         List<Rigidbody> rbList = new List<Rigidbody>();
         List<GameObject> goList = new List<GameObject>();
         List<SpringJoint> sjList = new List<SpringJoint>();
+
         GameObject pivot;
         Rigidbody rbPivot;
+
         Physics.IgnoreLayerCollision(0, 0, true);
+
         for (int i = 0; i < Nodes.Length; ++i)
         {
             rbList.Add(Softbody.AddCollider(ref Nodes[i], colliders.ToArray()));
             colliders.Add(rbList.Last().GetComponent<Collider>());
 
-            pivot = new GameObject("pivot"+i.ToString());
+            pivot = new GameObject("pivot" + i.ToString());
             pivot.transform.position = Nodes[i].transform.position;
             pivot.transform.parent = this.transform;
             rbPivot = pivot.AddComponent<Rigidbody>();
             rbPivot.useGravity = false;
-            pivot.AddComponent<FixedJoint>().connectedBody = root;
+
+            FixedJoint joint = pivot.AddComponent<FixedJoint>();
+            joint.connectedBody = root;
+            joint.connectedAnchor = Vector3.zero;
+            joint.autoConfigureConnectedAnchor = false;
+
             goList.Add(pivot);
 
             sjList.Add(Softbody.AddSpring(ref Nodes[i], ref pivot));
         }
         Physics.IgnoreLayerCollision(0, 0, false);
 
-        //scale = transform.localScale.x;
-        //for (int i = 0; i < Nodes.Length; ++i)
-        //{
-        //    for (int j = i + 1; j < Nodes.Length; ++j)
-        //    {
-        //        if (Vector3.Distance(Nodes[i].transform.position, Nodes[j].transform.position) < ConnectionDistance * scale)
-        //            sjList.Add(Softbody.AddSpring(ref Nodes[i], ref Nodes[j]));
-        //    }
-        //}
-
+        Pivots = goList.ToArray();
         //rigidBodies = rbList.ToArray();
         //springJoints = sjList.ToArray();
-
-        //Debug.Log(rigidBodies);
-        //Debug.Log(springJoints);
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-
-
-        //Scale();
-    }
-
-    public void RootJitter()
-    {
-        root.AddForce(scale * Jitter * UnityEngine.Random.insideUnitSphere * Time.deltaTime, ForceMode.Impulse);
+        Scale();
     }
 
     public void Scale()
     {
-        scale = transform.localScale.x;
+        float newScale = transform.localScale.x;
+        if (newScale != scale)
+        {
+            float factor = newScale / scale;
 
-        root.mass = RootRigidbodyMass * Mathf.Pow(scale, 3f);
-        //foreach (Rigidbody rb in rigidBodies)
-        //    rb.mass = RigidbodyMass * Mathf.Pow(scale, 3f);
+            FixedJoint joint;
 
-        //foreach (SpringJoint sj in springJoints)
-        //{
-        //    sj.spring = Spring * Mathf.Pow(scale, 3f);
-        //    sj.massScale = scale;
-        //    sj.connectedMassScale = scale;
-        //}
+            for (int idx = 0; idx < Nodes.Length; ++idx)
+            {
+                joint = Pivots[idx].GetComponent<FixedJoint>();
+
+                joint.anchor *= factor;
+
+                // 2. Scale the connected anchor
+                // The connectedAnchor is defined relative to the connected body's local space.
+                // It should be scaled by the local scale of the connected body if that body 
+                // has a non-uniform scale, but for simplicity and standard prefab scaling, 
+                // we often scale it by the current object's local scale as well.
+                if (joint.connectedBody != null)
+                {
+                    // For general scaling, use the scale of the object holding the joint:
+                    joint.connectedAnchor *= factor;
+                }
+
+                colliders[idx].transform.localScale *= factor;
+            }
+        }
+        scale = newScale;
     }
 }

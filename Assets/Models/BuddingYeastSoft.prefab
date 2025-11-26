@@ -191,7 +191,6 @@ MonoBehaviour:
   ColliderSize: 0.006
   RigidbodyMass: 1
   ConnectionDistance: 0.1
-  Jitter: 50
 --- !u!114 &17280207088994978
 MonoBehaviour:
   m_ObjectHideFlags: 0
