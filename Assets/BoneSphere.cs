@@ -115,8 +115,8 @@ public class BoneSphere : MonoBehaviour
                     // For general scaling, use the scale of the object holding the joint:
                     joint.connectedAnchor *= factor;
                 }
-
-                colliders[idx].transform.localScale *= factor;
+                if (colliders[idx] is SphereCollider sphere)
+                    sphere.radius *= factor;
             }
         }
         scale = newScale;

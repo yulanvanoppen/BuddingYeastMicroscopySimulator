@@ -95,6 +95,8 @@ GameObject:
   - component: {fileID: 8661368147339215026}
   - component: {fileID: 17280207088994978}
   - component: {fileID: 147135410954435781}
+  - component: {fileID: 5630334976776164528}
+  - component: {fileID: 571446133236710022}
   m_Layer: 0
   m_Name: BuddingYeastSoft
   m_TagString: Untagged
@@ -131,7 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4359bbc759baf1b4d97cd203fe6af4a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Root: {fileID: 2136440979800243128}
+  Root: {fileID: 570164783727510354}
   Nodes:
   - {fileID: 5661963362403675552}
   - {fileID: 6338190937624236171}
@@ -203,7 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a168a0bd72eeec14ca422f2516b4d449, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Root: {fileID: 2136440979800243128}
+  Root: {fileID: 570164783727510354}
   Gravity: 200
 --- !u!114 &147135410954435781
 MonoBehaviour:
@@ -218,7 +220,87 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Magnitude: 10
-  Root: {fileID: 2136440979800243128}
+  Root: {fileID: 570164783727510354}
+--- !u!114 &5630334976776164528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570164783727510354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0eb8704e870d6a43b78e90e51c25804, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Multiplier: 0.1
+  Variability: 0.5
+--- !u!114 &571446133236710022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570164783727510354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a428ec06115d88e488c79d797dd39faf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MeanTime: 100
+  Variability: 0.2
+  BudSize: 0.01
+  Sites:
+  - {fileID: 6547401729957634274}
+  - {fileID: 8452200660445550472}
+  - {fileID: 1111345968338140936}
+  - {fileID: 4374075307315241364}
+  - {fileID: 5012899126157852118}
+  - {fileID: 39795812602025834}
+  - {fileID: 5457960445424603292}
+  - {fileID: 8314096840869315278}
+  - {fileID: 270205948359623439}
+  - {fileID: 978231967957297838}
+  - {fileID: 1919927010181797230}
+  - {fileID: 810702251290690841}
+  - {fileID: 4450416644752314900}
+  - {fileID: 5714952773389585848}
+  - {fileID: 5784290871974714505}
+  - {fileID: 7893507885246476395}
+  - {fileID: 468381338494881923}
+  - {fileID: 3278038366096234282}
+  - {fileID: 3311889789084628498}
+  - {fileID: 8842976538155903352}
+  - {fileID: 2319665559474221613}
+  - {fileID: 3044186982107654364}
+  - {fileID: 7825421307686089436}
+  - {fileID: 4883372160598654506}
+  - {fileID: 7544338050136815121}
+  - {fileID: 2189269090716718763}
+  - {fileID: 1351847374281830158}
+  - {fileID: 2829498503800937963}
+  - {fileID: 2158565004811682419}
+  - {fileID: 2274980501732975602}
+  - {fileID: 2410802010190915350}
+  - {fileID: 5716576951180109433}
+  - {fileID: 1483148109348030570}
+  - {fileID: 4507282359117332900}
+  - {fileID: 1723533294148923006}
+  - {fileID: 1559851318307258433}
+  - {fileID: 5473020621355797304}
+  - {fileID: 1112772603091683203}
+  - {fileID: 8626124621638772049}
+  - {fileID: 384323807548163131}
+  - {fileID: 4203824407935873064}
+  - {fileID: 9023908217515772914}
+  - {fileID: 3602520334084603008}
+  - {fileID: 6030225108233277764}
+  - {fileID: 670736898362767739}
+  - {fileID: 2472451512634032619}
+  - {fileID: 9200836969586166128}
+  - {fileID: 3792865240463686547}
+  - {fileID: 8885643752569760755}
+  PrefabName: BuddingYeastSoft
 --- !u!1 &616862947592430555
 GameObject:
   m_ObjectHideFlags: 0
@@ -4471,12 +4553,6 @@ GameObject:
 --- !u!1 &2097616754082841521 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5476490434024349587, guid: 9c48ea9fcf1c3c74498f862b180614bb,
-    type: 3}
-  m_PrefabInstance: {fileID: 5844647959276067874}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &2136440979800243128 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5528860797864257434, guid: 9c48ea9fcf1c3c74498f862b180614bb,
     type: 3}
   m_PrefabInstance: {fileID: 5844647959276067874}
   m_PrefabAsset: {fileID: 0}

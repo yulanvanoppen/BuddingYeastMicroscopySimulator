@@ -15,7 +15,9 @@ public class Budding : MonoBehaviour
     public Transform[] Sites = null;
 
     [Tooltip("Bud prefab object (equal to own prefab)")]
-    public GameObject Prefab = null;
+    public string PrefabName = "BuddingYeastSoft";
+
+
 
     private float counter = 0f;
     private float cooldown;
@@ -38,9 +40,17 @@ public class Budding : MonoBehaviour
 
     private void MakeBud()
     {
+        GameObject originalPrefabAsset = Resources.Load<GameObject>(PrefabName);
+
+        if (originalPrefabAsset == null)
+        {
+            Debug.LogError("Failed to load prefab from Resources. Check the name and folder path.");
+            return;
+        }
+
         Transform randomSite = Sites[Random.Range(0, Sites.Length)];
 
-        GameObject bud = Instantiate(Prefab, randomSite.position, Quaternion.identity);
+        GameObject bud = Instantiate(originalPrefabAsset, randomSite.position, Quaternion.identity);
         bud.GetComponent<Growth>().ResetBud(BudSize);
     }
 }

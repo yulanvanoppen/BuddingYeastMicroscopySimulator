@@ -20,7 +20,7 @@ public class Jitter : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.AddForce(transform.localScale.x * Magnitude * Time.deltaTime
+        rb.AddForce(transform.localScale.x * Magnitude * Time.fixedDeltaTime
                          * UnityEngine.Random.insideUnitSphere, 
                         ForceMode.Impulse);
     }
