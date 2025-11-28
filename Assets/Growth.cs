@@ -10,11 +10,11 @@ public class Growth : MonoBehaviour
 
     private float time = .25f;
     private float rate;
-    private BoneSphere boneSphere;
+    //private BoneSphere boneSphere;
 
     private void Awake()
     {
-        boneSphere = gameObject.GetComponent<BoneSphere>();
+        //boneSphere = gameObject.GetComponent<BoneSphere>();
     }
 
     private void Start()
@@ -25,14 +25,14 @@ public class Growth : MonoBehaviour
         Multiplier *= 1f + Variability * Random.Range(-1f, 1f);
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        time += Time.deltaTime;
+        time += Time.fixedDeltaTime;
 
         // saturate growth rate after +- 40 seconds
         rate = .0001f + .2f * Mathf.Exp(time/10f) * Mathf.Pow(Mathf.Exp(time/10f) + 1, -2f);
 
-        Grow(Multiplier * rate * Time.deltaTime);
+        Grow(Multiplier * rate * Time.fixedDeltaTime);
     }
 
     private void Grow(float dscale)
@@ -45,7 +45,7 @@ public class Growth : MonoBehaviour
         gameObject.transform.localScale = scale * Vector3.one;
 
         // additional scaling step for soft mesh behavior
-        if (boneSphere != null && boneSphere.enabled) boneSphere.Scale();
+        // if (boneSphere != null && boneSphere.enabled) boneSphere.Scale();
     }
 
     public void ResetBud(float scale)

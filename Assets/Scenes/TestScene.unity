@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17276841, g: 0.21589246, b: 0.2978262, a: 1}
+  m_IndirectSpecularColor: {r: 0.17276844, g: 0.21589246, b: 0.2978263, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -248,6 +248,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: BuddingYeastSoft (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 571446133236710022, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: MeanTime
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 1623964171782762960, guid: f578845cfc7f82d46853a4bd270b771c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -296,6 +301,26 @@ PrefabInstance:
     - target: {fileID: 1623964171782762960, guid: f578845cfc7f82d46853a4bd270b771c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -570,6 +595,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: BuddingYeastSoft
       objectReference: {fileID: 0}
+    - target: {fileID: 571446133236710022, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: MeanTime
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 1623964171782762960, guid: f578845cfc7f82d46853a4bd270b771c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -618,6 +648,26 @@ PrefabInstance:
     - target: {fileID: 1623964171782762960, guid: f578845cfc7f82d46853a4bd270b771c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1020,6 +1070,26 @@ PrefabInstance:
     - target: {fileID: 1623964171782762960, guid: f578845cfc7f82d46853a4bd270b771c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3986855189446260872, guid: f578845cfc7f82d46853a4bd270b771c,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
