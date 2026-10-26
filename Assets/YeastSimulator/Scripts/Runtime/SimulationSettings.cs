@@ -57,12 +57,45 @@ namespace YeastSim
 
         [Header("Membrane springs")]
         [Tooltip("Stiffness pulling each membrane node back to its rest position on the cell outline. Lower = softer, more deformable cells.")]
-        [Min(0f)] public float MembraneStiffness = 20f;
+        [Min(0f)] public float MembraneStiffness = 30f;
 
         [Tooltip("Damping of the membrane springs.")]
-        [Min(0f)] public float MembraneDamping = 2f;
+        [Min(0f)] public float MembraneDamping = 3f;
+
+        [Header("Overlap prevention")]
+        [Tooltip("Repulsion between the centres of touching cells, based on both cells' outlines. This is what " +
+                 "keeps cells from being squeezed into each other; the membranes only add the soft dents. 0 = off.")]
+        [Min(0f)] public float CellRepulsion = 200f;
+
+        [Tooltip("Two cells are pushed apart once their centres are closer than this fraction of the sum of their " +
+                 "outline distances. 1 = no overlap at all; 0.7 allows ~30% squeezing (visible flattening at contacts).")]
+        [Range(0.6f, 1f)] public float ContactFraction = 0.7f;
+
+        [Tooltip("Force pushing membrane nodes back out when they end up inside another cell. Stops cells from " +
+                 "merging or interlocking. 0 = off.")]
+        [Min(0f)] public float InterpenetrationStiffness = 150f;
+
+        [Tooltip("Nodes are pushed out once they are inside this fraction of the other cell's outline. Below 1 " +
+                 "leaves room for the normal dents where cells press together.")]
+        [Range(0.5f, 1f)] public float InterpenetrationMargin = 0.8f;
+
+        [Header("Relaxation")]
+        [Tooltip("After every step, if cells overlap more than the tolerance, keep running physics with growth, " +
+                 "division and the clock paused until they don't. Overlaps never accumulate and every captured " +
+                 "frame is relaxed.")]
+        public bool RelaxOverlaps = true;
+
+        [Tooltip("Largest accepted overlap, as a fraction of the smaller cell's radius (beyond the Contact Fraction).")]
+        [Range(0.005f, 0.2f)] public float OverlapTolerance = 0.03f;
+
+        [Tooltip("Safety cap on relaxation steps after one simulation step.")]
+        [Range(1, 2000)] public int MaxRelaxationSteps = 300;
 
         [Header("Bud neck")]
+        [Tooltip("Around the neck, bud and mother don't collide (they overlap slightly there). Everywhere else they do. " +
+                 "Half-angle of that neck region, in degrees.")]
+        [Range(10f, 90f)] public float NeckZoneAngle = 60f;
+
         [Tooltip("Stiffness of the joint that holds a bud against its mother until division.")]
         [Min(0f)] public float NeckStiffness = 200f;
 
@@ -121,8 +154,16 @@ namespace YeastSim
         [Min(0f)] public float CoverslipGap = 6f;
 
         [Header("Forces on cell centres")]
-        [Tooltip("Constant force pulling cells towards their colony centre, which keeps colonies compact.")]
-        [Min(0f)] public float Cohesion = 1f;
+        [Tooltip("Constant force pulling cells towards their colony centre, which keeps colonies compact. These forces " +
+                 "add up towards the middle of a colony; overlap relaxation keeps the squeezed cells apart.")]
+        [Min(0f)] public float Cohesion = 6.5f;
+
+        [Tooltip("Attraction between neighbouring cells that are close but not touching (cell–cell adhesion). " +
+                 "Keeps colonies compact and makes cells press into each other instead of drifting apart.")]
+        [Min(0f)] public float Adhesion = 4f;
+
+        [Tooltip("Gap (µm) between two cell outlines over which adhesion acts.")]
+        [Min(0f)] public float AdhesionRange = 1f;
 
         [Tooltip("Random force on each cell centre (thermal/flow noise).")]
         [Min(0f)] public float Jitter = 0.5f;

@@ -89,12 +89,16 @@ namespace YeastSim
         private const float MaxDepenetrationVelocity = 1f;
 
         private SpringJoint _neck;
+        private float _neckZoneCos;
+        private readonly List<(Collider, Collider)> _neckIgnored = new List<(Collider, Collider)>();
         private Vector3 _neckDirection;
         private float _neckOverlapFraction;
 
         private struct Node
         {
             public Transform Bone;
+            public Rigidbody Body;
+            public Collider Collider;
             public Vector3 RestOffset;   // core-local offset at native model size
             public Vector3 BaseScale;    // bone localScale at native model size
             public SpringJoint Joint;
@@ -229,6 +233,8 @@ namespace YeastSim
                 joint.enableCollision = false;
 
                 node.Joint = joint;
+                node.Body = body;
+                node.Collider = sphere;
                 _nodes[i] = node;
             }
 
@@ -297,6 +303,31 @@ namespace YeastSim
             _coreCollider.height = Mathf.Max(2f * radius, 2f * _coreColliderFraction * SemiMajor);
         }
 
+        internal Quaternion CoreRotation => _coreRotation;
+        internal int NodeCount => _nodes.Count;
+        internal Rigidbody NodeBody(int index) => _nodes[index].Body;
+
+        /// <summary>
+        /// If <paramref name="point"/> lies inside this cell's rest outline shrunk by
+        /// <paramref name="margin"/>, returns true with the outward direction and how deep it is.
+        /// </summary>
+        internal bool Penetration(Vector3 point, float margin, out Vector3 outward, out float depth)
+        {
+            outward = Vector3.zero;
+            depth = 0f;
+            Vector3 local = Quaternion.Inverse(_coreRotation) * (point - Core.position);
+            float a = SemiMajor * margin, b = SemiMinor * margin;
+            float q = local.z * local.z / (a * a) + (local.x * local.x + local.y * local.y) / (b * b);
+            if (q >= 1f) return false;
+
+            float distance = local.magnitude;
+            if (distance < 1e-5f) return false;   // dead centre: no meaningful direction
+            float sqrtQ = Mathf.Sqrt(q);
+            depth = distance / sqrtQ - distance;  // along the ray from the centre to the (shrunk) outline
+            outward = _coreRotation * (local / distance);
+            return true;
+        }
+
         /// <summary>Distance from the centre to the rest surface in a world direction.</summary>
         public float SurfaceDistance(Vector3 worldDirection)
         {
@@ -313,6 +344,7 @@ namespace YeastSim
         /// </summary>
         internal void AttachToMother(YeastCell mother, Vector3 direction, CellPhysicsSettings physics, float neckOverlapFraction)
         {
+            _neckZoneCos = Mathf.Cos(physics.NeckZoneAngle * Mathf.Deg2Rad);
             _neckDirection = direction.normalized;
             _neckOverlapFraction = neckOverlapFraction;
 
@@ -326,7 +358,16 @@ namespace YeastSim
             _neck.tolerance = 0.0001f;
             _neck.enableCollision = false;
 
-            SetCollisionsWith(mother, false);
+            // Only the parts around the neck ignore each other; the rest of bud and mother collide.
+            _neckIgnored.Clear();
+            List<Collider> budSide = NeckZone(-_neckDirection);
+            List<Collider> motherSide = mother.NeckZone(_neckDirection);
+            foreach (Collider a in budSide)
+                foreach (Collider b in motherSide)
+                {
+                    Physics.IgnoreCollision(a, b, true);
+                    _neckIgnored.Add((a, b));
+                }
             UpdateNeck();
         }
 
@@ -350,14 +391,19 @@ namespace YeastSim
                 DestroyImmediate(_neck);
                 _neck = null;
             }
-            if (Mother != null) SetCollisionsWith(Mother, true);
+            foreach ((Collider a, Collider b) in _neckIgnored)
+                if (a != null && b != null) Physics.IgnoreCollision(a, b, false);
+            _neckIgnored.Clear();
         }
 
-        private void SetCollisionsWith(YeastCell other, bool collide)
+        /// <summary>Core plus the membrane nodes facing <paramref name="worldDirection"/> (within the neck angle).</summary>
+        private List<Collider> NeckZone(Vector3 worldDirection)
         {
-            foreach (Collider a in _colliders)
-                foreach (Collider b in other._colliders)
-                    Physics.IgnoreCollision(a, b, !collide);
+            var zone = new List<Collider> { _coreCollider };
+            Vector3 local = Quaternion.Inverse(_coreRotation) * worldDirection.normalized;
+            foreach (Node node in _nodes)
+                if (Vector3.Dot(node.RestOffset.normalized, local) >= _neckZoneCos) zone.Add(node.Collider);
+            return zone;
         }
         #endregion
     }

@@ -223,7 +223,8 @@ namespace YeastSim
 
             if (_tracks != null) AppendTracks(minute);
 
-            _status = $"Run {s_runIndex + 1}/{Runs} · frame {_frame + 1}/{Frames} · {minute:F0} min · {cells.Count} cells";
+            _status = $"Run {s_runIndex + 1}/{Runs} · frame {_frame + 1}/{Frames} · {minute:F0} min · {cells.Count} cells" +
+                      $" · relaxation steps so far: {_simulation.TotalRelaxationSteps}";
         }
 
         private int LabelIdOf(YeastCell cell) =>

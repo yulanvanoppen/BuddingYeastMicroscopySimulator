@@ -52,6 +52,13 @@ namespace YeastSim
         /// <summary>Simulated time (minutes) = steps taken × minutes per step (no accumulated rounding).</summary>
         public float SimMinutes => (float)(_step * (double)Timing.MinutesPerStep);
         public long Steps => _step;
+
+        /// <summary>Relaxation steps run after the most recent simulation step.</summary>
+        public int LastRelaxationSteps { get; private set; }
+        /// <summary>Relaxation steps run in total.</summary>
+        public long TotalRelaxationSteps { get; private set; }
+        /// <summary>Worst remaining overlap after the last step, as a fraction of a cell radius.</summary>
+        public float WorstOverlap { get; private set; }
         public IReadOnlyList<YeastCell> Cells => _cells;
         public IReadOnlyList<LineageRecord> Lineage => _lineage;
         public int CellLayer => _cellLayer;
@@ -72,11 +79,13 @@ namespace YeastSim
         private readonly List<Vector3> _colonyCentroids = new List<Vector3>();
         private readonly List<int> _colonySizes = new List<int>();
         private readonly List<Color32> _neighbourColors = new List<Color32>();
+        private readonly Dictionary<(int, int), List<int>> _grid = new Dictionary<(int, int), List<int>>();
         private LabelPalette _palette;
         private System.Random _random;
         private int _nextId = 1;
         private long _step;
         private long _stopStep = -1;
+        private bool _warnedRelaxation;
         private Transform _cellParent;
         private MaterialPropertyBlock _block;
 
@@ -252,9 +261,41 @@ namespace YeastSim
             // Iterate over the cells that existed at the start of the step; new buds start next step.
             int count = _cells.Count;
             for (int i = 0; i < count; i++) UpdateCellCycle(_cells[i]);
-            for (int i = 0; i < count; i++) ApplyForces(_cells[i]);
+            for (int i = 0; i < count; i++) ApplyForces(_cells[i], includeNoise: true);
+            ResolveCellOverlaps(apply: true, attract: true);
 
             PhysicsApi.Simulate(Timing.PhysicsTimestep);
+
+            if (CellPhysics.RelaxOverlaps) Relax();
+        }
+
+        /// <summary>
+        /// Runs extra physics steps with growth, division and the clock paused until no pair of cells
+        /// overlaps by more than the tolerance (or the step cap is hit). Only the confinement and the
+        /// overlap forces act, so cells just settle; no noise or colony pull.
+        /// </summary>
+        private void Relax()
+        {
+            int steps = 0;
+            float worst = ResolveCellOverlaps(apply: false, attract: false);
+            while (worst > CellPhysics.OverlapTolerance && steps < CellPhysics.MaxRelaxationSteps)
+            {
+                foreach (YeastCell cell in _cells) ApplyForces(cell, includeNoise: false);
+                ResolveCellOverlaps(apply: true, attract: false);
+                PhysicsApi.Simulate(Timing.PhysicsTimestep);
+                steps++;
+                worst = ResolveCellOverlaps(apply: false, attract: false);
+            }
+
+            LastRelaxationSteps = steps;
+            WorstOverlap = worst;
+            if (steps > 0) TotalRelaxationSteps += steps;
+            if (worst > CellPhysics.OverlapTolerance && !_warnedRelaxation)
+            {
+                _warnedRelaxation = true;
+                Debug.LogWarning($"[YeastSim] Overlaps didn't settle within {CellPhysics.MaxRelaxationSteps} relaxation steps " +
+                                 $"(worst {worst:P0} of a radius). Raise Cell Repulsion or Max Relaxation Steps.");
+            }
         }
 
         private void UpdateCellCycle(YeastCell cell)
@@ -283,7 +324,7 @@ namespace YeastSim
             }
         }
 
-        private void ApplyForces(YeastCell cell)
+        private void ApplyForces(YeastCell cell, bool includeNoise)
         {
             Rigidbody core = cell.Core;
             Vector3 p = core.position;
@@ -293,7 +334,7 @@ namespace YeastSim
             var force = new Vector3(0f, Environment.PlaneStiffness * (restHeight - p.y), 0f);
 
             // Weak pull towards the colony centre keeps colonies compact.
-            if (Environment.Cohesion > 0f && cell.ColonyId > 0)
+            if (includeNoise && Environment.Cohesion > 0f && cell.ColonyId > 0)
             {
                 Vector3 toCentre = _colonyCentroids[cell.ColonyId - 1] - p;
                 toCentre.y = 0f;
@@ -301,7 +342,7 @@ namespace YeastSim
                 if (distance > cell.Radius) force += toCentre / distance * Environment.Cohesion;
             }
 
-            if (Environment.Jitter > 0f)
+            if (includeNoise && Environment.Jitter > 0f)
             {
                 Vector2 noise = RandomOnCircle() * (Environment.Jitter * (float)_random.NextDouble());
                 force += new Vector3(noise.x, 0f, noise.y);
@@ -309,6 +350,108 @@ namespace YeastSim
 
             core.AddForce(force, ForceMode.Force);
         }
+
+        /// <summary>
+        /// Keeps cells from merging, for every pair of nearby cells (found with a uniform grid on the
+        /// slide plane):
+        /// <list type="number">
+        /// <item>Centre repulsion: if two centres are closer than <see cref="CellPhysicsSettings.ContactFraction"/>
+        /// of the sum of their outline distances along the line between them, the cores are pushed apart.
+        /// This bounds how far cells can be squeezed into each other, so membranes can't wrap around a
+        /// neighbour. Skipped for a bud and its mother while attached (they overlap at the neck).</item>
+        /// <item>Node push-out: a membrane node found inside a neighbour's outline is pushed back out
+        /// (the neighbour gets the opposite push), which untangles any leftovers.</item>
+        /// </list>
+        /// </summary>
+        /// <returns>Worst overlap found, as a fraction of the (smaller) cell radius.</returns>
+        private float ResolveCellOverlaps(bool apply, bool attract)
+        {
+            float adhesion = attract ? Environment.Adhesion : 0f;
+            float adhesionRange = Environment.AdhesionRange;
+            float stiffness = CellPhysics.InterpenetrationStiffness;
+            float repulsion = CellPhysics.CellRepulsion;
+            float worst = 0f;
+            if (_cells.Count < 2) return worst;
+            float margin = CellPhysics.InterpenetrationMargin;
+            float contactFraction = CellPhysics.ContactFraction;
+
+            float maxExtent = 0f;
+            foreach (YeastCell cell in _cells) maxExtent = Mathf.Max(maxExtent, cell.SemiMajor);
+            float gridSize = Mathf.Max(0.5f, 2f * maxExtent);
+
+            foreach (List<int> list in _grid.Values) list.Clear();   // reuse buckets between steps
+            for (int i = 0; i < _cells.Count; i++)
+            {
+                (int, int) key = GridKey(_cells[i].Position, gridSize);
+                if (!_grid.TryGetValue(key, out List<int> bucket)) _grid[key] = bucket = new List<int>();
+                bucket.Add(i);
+            }
+
+            for (int i = 0; i < _cells.Count; i++)
+            {
+                YeastCell a = _cells[i];
+                (int gx, int gz) = GridKey(a.Position, gridSize);
+                for (int dx = -1; dx <= 1; dx++)
+                for (int dz = -1; dz <= 1; dz++)
+                {
+                    if (!_grid.TryGetValue((gx + dx, gz + dz), out List<int> bucket)) continue;
+                    foreach (int j in bucket)
+                    {
+                        if (j == i) continue;
+                        YeastCell b = _cells[j];
+                        Vector3 between = b.Position - a.Position;
+                        float reach = a.SemiMajor + b.SemiMajor + (adhesion > 0f ? adhesionRange : 0f);
+                        if (between.sqrMagnitude > reach * reach) continue;
+
+                        // 1. Centre repulsion (each pair once).
+                        bool attached = a.AttachedBud == b || b.AttachedBud == a;
+                        if (j > i && !attached)
+                        {
+                            float distance = between.magnitude;
+                            Vector3 direction = distance > 1e-4f ? between / distance : Vector3.right;
+                            float touching = a.SurfaceDistance(direction) + b.SurfaceDistance(-direction);
+                            float contact = contactFraction * touching;
+                            float overlap = contact - distance;
+
+                            // Adhesion: pull neighbours that are within range but not touching together.
+                            float gap = distance - touching;
+                            if (apply && adhesion > 0f && gap > 0f && gap < adhesionRange)
+                            {
+                                Vector3 pull = direction * adhesion;
+                                a.Core.AddForce(pull, ForceMode.Force);
+                                b.Core.AddForce(-pull, ForceMode.Force);
+                            }
+                            if (overlap > 0f)
+                                worst = Mathf.Max(worst, overlap / Mathf.Min(a.Radius, b.Radius));
+                            if (apply && repulsion > 0f && overlap > 0f)
+                            {
+                                Vector3 push = direction * (repulsion * overlap);
+                                a.Core.AddForce(-push, ForceMode.Force);
+                                b.Core.AddForce(push, ForceMode.Force);
+                            }
+                        }
+
+                        // 2. Push a's membrane nodes out of b.
+                        for (int n = 0; n < a.NodeCount; n++)
+                        {
+                            Rigidbody node = a.NodeBody(n);
+                            if (!b.Penetration(node.position, margin, out Vector3 outward, out float depth)) continue;
+                            // An attached bud and its mother overlap at the neck by design; don't let that
+                            // keep the relaxation going (the push-out force still applies).
+                            if (!attached) worst = Mathf.Max(worst, depth / Mathf.Min(a.Radius, b.Radius));
+                            if (!apply || stiffness <= 0f) continue;
+                            Vector3 force = outward * (stiffness * depth);
+                            node.AddForce(force, ForceMode.Force);
+                            b.Core.AddForce(-force, ForceMode.Force);
+                        }
+                    }
+                }
+            }
+            return worst;
+        }
+
+        private static (int, int) GridKey(Vector3 p, float size) =>
+            (Mathf.FloorToInt(p.x / size), Mathf.FloorToInt(p.z / size));
 
         private void UpdateColonyCentroids()
         {
