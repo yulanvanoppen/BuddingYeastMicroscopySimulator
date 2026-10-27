@@ -8,7 +8,10 @@ budded from whom remain hard, and real ground truth for that is scarce. The simu
 time-lapse movies in which every pixel's cell identity and every mother–daughter relation is known
 exactly.
 
-| ![Simulated brightfield movie](./Art/brightfield.gif) | ![Corresponding labels.](./Art/labels.gif) |
+<div style="display: inline-block; width: 100%; margin: 1%;">
+  <img src="./Art/brightfield.gif" alt="Simulated brightfield movie." width="30%">
+  <img src="./Art/labels.gif" alt="Corresponding labels." width="30%">
+</div>
 
 ## What it produces
 
@@ -28,7 +31,9 @@ Label images are written losslessly; compressed formats such as MP4 would blend 
 Buds can be labelled separately from the moment they emerge, or merged with their mother until division
 (**Bud Labels** on the recorder).
 
-![Sample lineage CSV](Art/lineage_sample.png)
+<div style="display: inline-block; width: 100%; margin: 1%;">
+  <img src="./Art/lineage_sample.png" alt="Sample lineage CSV." width="30%">
+</div>
 
 ## The model
 
