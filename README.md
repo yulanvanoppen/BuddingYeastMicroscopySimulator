@@ -32,7 +32,7 @@ Buds can be labelled separately from the moment they emerge, or merged with thei
 (**Bud Labels** on the recorder).
 
 <div style="display: inline-block; width: 100%; margin: 1%;">
-  <img src="./Art/lineage_sample.png" alt="Sample lineage CSV." width="30%">
+  <img src="./Art/lineage_sample.png" alt="Sample lineage CSV." width="70%">
 </div>
 
 ## The model
